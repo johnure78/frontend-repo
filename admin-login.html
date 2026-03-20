@@ -174,7 +174,7 @@ const API = window.location.hostname === "localhost"
   : "https://gio26.onrender.com";
 
 async function login() {
-  const username = document.getElementById("username").value;
+  const username = document.getElementById("username").value.trim();
   const password = document.getElementById("password").value;
   const errorEl = document.getElementById("error");
   const btn = document.getElementById("loginBtn");
