@@ -6,172 +6,82 @@
 <title>Admin Dashboard — Messages</title>
 
 <style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-/* Hide content by default until auth check passes */
-body { visibility: hidden; }
-
-body.authenticated { 
-  visibility: visible; 
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+body {
+  font-family: Arial, sans-serif;
   background: #f4f6f9;
-  min-height: 100vh;
-}
-
-/* Auth checking message */
-#auth-check {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: #1f2d3d;
-  color: white;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  z-index: 9999;
+  margin: 0;
 }
 
 header {
-  background: linear-gradient(135deg, #1f2d3d 0%, #2c3e50 100%);
+  background: #1f2d3d;
   color: white;
   padding: 20px;
   text-align: center;
-  font-size: 20px;
-  font-weight: 600;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  font-size: 22px;
+  font-weight: bold;
 }
 
 .container {
   max-width: 1200px;
-  margin: 20px auto;
+  margin: 40px auto;
   background: white;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-}
-
-.header-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
-  gap: 15px;
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.08);
 }
 
 h2 {
-  color: #1f2d3d;
-  font-size: 24px;
-}
-
-.logout-btn {
-  background: #e74c3c;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.3s;
-}
-
-.logout-btn:hover {
-  background: #c0392b;
-  transform: translateY(-1px);
-}
-
-.loading {
-  text-align: center;
-  padding: 60px 20px;
-  font-size: 18px;
-  color: #666;
-}
-
-.loading::after {
-  content: "";
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  border: 3px solid #ddd;
-  border-top-color: #667eea;
-  border-radius: 50%;
-  margin-left: 10px;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-/* Table styles */
-.table-wrapper {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
+  margin-top: 0;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 700px;
+  margin-top: 20px;
 }
 
 th, td {
-  padding: 14px 12px;
-  border-bottom: 1px solid #e1e8ed;
+  padding: 12px;
+  border-bottom: 1px solid #ddd;
   text-align: left;
   font-size: 14px;
 }
 
 th {
-  background: #f8f9fa;
-  font-weight: 600;
-  color: #1f2d3d;
-  text-transform: uppercase;
-  font-size: 12px;
-  letter-spacing: 0.5px;
+  background: #f1f3f5;
 }
 
 tr:hover {
-  background: #f8f9fa;
-}
-
-td {
-  color: #555;
-  line-height: 1.5;
+  background: #fafafa;
 }
 
 .status-new {
   color: #e67e22;
-  font-weight: 600;
-  background: #fef3e2;
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 12px;
-  display: inline-block;
+  font-weight: bold;
+}
+
+button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
 .delete-btn {
   background: #e74c3c;
   color: white;
-  padding: 8px 14px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 13px;
-  transition: all 0.3s;
 }
 
 .delete-btn:hover {
   background: #c0392b;
 }
 
-/* Mobile responsive */
+.loading {
+  text-align: center;
+  padding: 30px;
+  font-size: 18px;
+}
+
 @media (max-width: 768px) {
   header {
     font-size: 18px;
@@ -238,104 +148,79 @@ td {
 
 <body>
 
-<!-- Auth checking message -->
-<div id="auth-check">
-  <h1>🔒 Checking Authentication</h1>
-  <p>Redirecting to login if not authenticated...</p>
-</div>
+<header>
+  📬 Sponsors Contact Messages Dashboard
+</header>
 
-<!-- Protected content -->
-<div id="protected-content">
-  <header>
-    📬 Sponsors Contact Messages Dashboard
-  </header>
+<div class="container">
+<h2>All Submissions</h2>
+<button onclick="logout()" style="float:right; background:#e74c3c; color:white; padding:8px 16px; border:none; border-radius:4px; cursor:pointer;">Logout</button>
 
-  <div class="container">
-    <div class="header-row">
-      <h2>All Submissions</h2>
-      <button class="logout-btn" onclick="logout()">🚪 Logout</button>
-    </div>
+  <div id="loading" class="loading">Loading messages...</div>
 
-    <div id="loading" class="loading">Loading messages...</div>
-    
-    <div id="empty-state" class="empty-state" style="display: none;">
-      <div class="empty-state-icon">📭</div>
-      <p>No messages found</p>
-    </div>
+  <table id="table" style="display:none;">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Phone</th>
+        <th>Message</th>
+        <th>Status</th>
+        <th>Date</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
-    <div class="table-wrapper">
-      <table id="table" style="display:none;">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Phone</th>
-            <th>Message</th>
-            <th>Status</th>
-            <th>Date</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </div>
 </div>
 
 <script>
-// Immediate auth check
-(function checkAuth() {
-  const token = localStorage.getItem("adminToken");
-  
-  if (!token || token === "null" || token === "undefined" || token === "") {
-    console.log("NO TOKEN - REDIRECTING");
-    window.location.href = "admin-login.html";
-    return;
-  }
-  
-  console.log("TOKEN FOUND - SHOWING DASHBOARD");
-  document.body.classList.add("authenticated");
-})();
-
+// ⭐ PROTECTION: Check token IMMEDIATELY before anything else
 const token = localStorage.getItem("adminToken");
-if (!token) {
-  window.location.href = "admin-login.html";
-  throw new Error("No token");
+
+if (!token || token === "null" || token === "undefined") {
+  // No token found, redirect to login immediately
+  window.location.replace("admin-login.html");
+  throw new Error("No token - redirecting to login"); // Stop script execution
 }
 
-const API_BASE = window.location.hostname === "localhost"
-  ? "http://localhost:5000"
-  : "https://gio26.onrender.com";
+// Token exists, proceed with loading
+console.log("Token found, loading admin panel...");
+
+const API_BASE =
+  window.location.hostname === "localhost"
+    ? "http://localhost:5000"
+    : "https://gio26.onrender.com";
 
 async function loadSubmissions() {
   try {
     const res = await fetch(`${API_BASE}/api/admin/submissions`, {
-      headers: { Authorization: token }
+      headers: {
+        Authorization: token
+      }
     });
     
+    // ⭐ Handle 401 (unauthorized) - token expired or invalid
     if (res.status === 401) {
-      localStorage.removeItem("adminToken");
-      window.location.href = "admin-login.html";
+      localStorage.removeItem("adminToken"); // Clear bad token
+      window.location.replace("admin-login.html");
       return;
     }
     
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status}`);
+    }
     
     const data = await res.json();
+
     document.getElementById("loading").style.display = "none";
-    
-    const submissions = data.submissions || [];
-    
-    if (submissions.length === 0) {
-      document.getElementById("empty-state").style.display = "block";
-    } else {
-      document.getElementById("table").style.display = "table";
-      renderTable(submissions);
-    }
+    document.getElementById("table").style.display = "table";
+    renderTable(data.submissions || []);
 
   } catch (err) {
-    console.error("Error:", err);
-    document.getElementById("loading").innerHTML = "❌ Failed to load messages. <button onclick='loadSubmissions()' style='margin-left:10px;padding:5px 10px;'>Retry</button>";
+    console.error("Error loading submissions:", err);
+    document.getElementById("loading").innerText = "Failed to load messages";
   }
 }
 
@@ -343,57 +228,60 @@ function renderTable(submissions) {
   const tbody = document.querySelector("#table tbody");
   tbody.innerHTML = "";
 
+  if (submissions.length === 0) {
+    tbody.innerHTML = "<tr><td colspan='7'>No messages found</td></tr>";
+    return;
+  }
+
   submissions.forEach(sub => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td><strong>${escapeHtml(sub.name) || "N/A"}</strong></td>
-      <td><a href="mailto:${escapeHtml(sub.email)}" style="color:#667eea;text-decoration:none;">${escapeHtml(sub.email) || "N/A"}</a></td>
-      <td>${escapeHtml(sub.phone) || "—"}</td>
-      <td class="message-preview" title="${escapeHtml(sub.message)}">${escapeHtml(sub.message) || "No message"}</td>
-      <td><span class="status-new">${escapeHtml(sub.status) || "new"}</span></td>
+      <td>${sub.name || "N/A"}</td>
+      <td>${sub.email || "N/A"}</td>
+      <td>${sub.phone || "N/A"}</td>
+      <td>${sub.message || "No message"}</td>
+      <td class="status-new">${sub.status || "new"}</td>
       <td>${new Date(sub.createdAt).toLocaleString()}</td>
-      <td><button class="delete-btn" onclick="deleteMessage('${sub._id}')">🗑️ Delete</button></td>
+      <td>
+        <button class="delete-btn" onclick="deleteMessage('${sub._id}')">Delete</button>
+      </td>
     `;
     tbody.appendChild(tr);
   });
 }
 
-// Prevent XSS
-function escapeHtml(text) {
-  if (!text) return "";
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
-}
-
 async function deleteMessage(id) {
-  if (!confirm("🗑️ Delete this message permanently?")) return;
+  if (!confirm("Delete this message permanently?")) return;
 
   try {
     const res = await fetch(`${API_BASE}/api/admin/submissions/${id}`, {
       method: "DELETE",
-      headers: { Authorization: token }
+      headers: {
+        Authorization: token
+      }
     });
     
     if (res.status === 401) {
       localStorage.removeItem("adminToken");
-      window.location.href = "admin-login.html";
+      window.location.replace("admin-login.html");
       return;
     }
     
-    if (!res.ok) throw new Error(`Delete failed: ${res.status}`);
+    if (!res.ok) {
+      throw new Error(`Delete failed: ${res.status}`);
+    }
+    
     loadSubmissions();
   } catch (err) {
     console.error("Delete error:", err);
-    alert("❌ Failed to delete message");
+    alert("Failed to delete message");
   }
 }
 
+// ⭐ ADD LOGOUT FUNCTION
 function logout() {
-  if (confirm("Are you sure you want to logout?")) {
-    localStorage.removeItem("adminToken");
-    window.location.href = "admin-login.html";
-  }
+  localStorage.removeItem("adminToken");
+  window.location.replace("admin-login.html");
 }
 
 // Load data
