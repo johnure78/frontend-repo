@@ -6,22 +6,30 @@
 <title>Admin Dashboard — Messages</title>
 
 <style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 /* Hide content by default until auth check passes */
 body { visibility: hidden; }
 
 body.authenticated { 
   visibility: visible; 
-  font-family: Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   background: #f4f6f9;
-  margin: 0;
+  min-height: 100vh;
 }
 
-/* Redirect message */
+/* Auth checking message */
 #auth-check {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: #f4f6f9;
+  background: #1f2d3d;
+  color: white;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   font-size: 18px;
@@ -29,117 +37,272 @@ body.authenticated {
 }
 
 header {
-  background: #1f2d3d;
+  background: linear-gradient(135deg, #1f2d3d 0%, #2c3e50 100%);
   color: white;
   padding: 20px;
   text-align: center;
-  font-size: 22px;
-  font-weight: bold;
+  font-size: 20px;
+  font-weight: 600;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
 .container {
   max-width: 1200px;
-  margin: 40px auto;
+  margin: 20px auto;
   background: white;
-  padding: 25px;
-  border-radius: 8px;
-  box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
 }
 
-h2 { margin-top: 0; }
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+h2 {
+  color: #1f2d3d;
+  font-size: 24px;
+}
+
+.logout-btn {
+  background: #e74c3c;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s;
+}
+
+.logout-btn:hover {
+  background: #c0392b;
+  transform: translateY(-1px);
+}
+
+.loading {
+  text-align: center;
+  padding: 60px 20px;
+  font-size: 18px;
+  color: #666;
+}
+
+.loading::after {
+  content: "";
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid #ddd;
+  border-top-color: #667eea;
+  border-radius: 50%;
+  margin-left: 10px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Table styles */
+.table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
 
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 20px;
+  min-width: 700px;
 }
 
 th, td {
-  padding: 12px;
-  border-bottom: 1px solid #ddd;
+  padding: 14px 12px;
+  border-bottom: 1px solid #e1e8ed;
   text-align: left;
   font-size: 14px;
 }
 
-th { background: #f1f3f5; }
-tr:hover { background: #fafafa; }
-.status-new { color: #e67e22; font-weight: bold; }
+th {
+  background: #f8f9fa;
+  font-weight: 600;
+  color: #1f2d3d;
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+}
 
-button {
-  padding: 6px 12px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+tr:hover {
+  background: #f8f9fa;
+}
+
+td {
+  color: #555;
+  line-height: 1.5;
+}
+
+.status-new {
+  color: #e67e22;
+  font-weight: 600;
+  background: #fef3e2;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  display: inline-block;
 }
 
 .delete-btn {
   background: #e74c3c;
   color: white;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.3s;
 }
 
-.delete-btn:hover { background: #c0392b; }
+.delete-btn:hover {
+  background: #c0392b;
+}
 
-.loading {
+/* Mobile responsive */
+@media (max-width: 768px) {
+  header {
+    font-size: 18px;
+    padding: 15px;
+  }
+  
+  .container {
+    margin: 10px;
+    padding: 15px;
+    border-radius: 8px;
+  }
+  
+  .header-row {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+  
+  h2 {
+    font-size: 20px;
+  }
+  
+  .logout-btn {
+    width: 100%;
+  }
+  
+  /* Card view for mobile instead of table */
+  .mobile-cards {
+    display: block;
+  }
+  
+  table {
+    display: none;
+  }
+}
+
+/* Empty state */
+.empty-state {
   text-align: center;
-  padding: 30px;
-  font-size: 18px;
+  padding: 60px 20px;
+  color: #666;
+}
+
+.empty-state-icon {
+  font-size: 48px;
+  margin-bottom: 15px;
+}
+
+/* Message text truncation */
+.message-preview {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .message-preview {
+    max-width: 150px;
+  }
 }
 </style>
 </head>
 
 <body>
 
-<!-- Auth check message -->
-<div id="auth-check">Checking authentication...</div>
+<!-- Auth checking message -->
+<div id="auth-check">
+  <h1>🔒 Checking Authentication</h1>
+  <p>Redirecting to login if not authenticated...</p>
+</div>
 
-<header>
-  📬 Sponsors Contact Messages Dashboard
-</header>
+<!-- Protected content -->
+<div id="protected-content">
+  <header>
+    📬 Sponsors Contact Messages Dashboard
+  </header>
 
-<div class="container">
-  <h2>All Submissions</h2>
-  <button onclick="logout()" style="float:right; background:#e74c3c; color:white; padding:8px 16px; border:none; border-radius:4px; cursor:pointer;">Logout</button>
+  <div class="container">
+    <div class="header-row">
+      <h2>All Submissions</h2>
+      <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+    </div>
 
-  <div id="loading" class="loading">Loading messages...</div>
+    <div id="loading" class="loading">Loading messages...</div>
+    
+    <div id="empty-state" class="empty-state" style="display: none;">
+      <div class="empty-state-icon">📭</div>
+      <p>No messages found</p>
+    </div>
 
-  <table id="table" style="display:none;">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Email</th>
-        <th>Phone</th>
-        <th>Message</th>
-        <th>Status</th>
-        <th>Date</th>
-        <th>Action</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+    <div class="table-wrapper">
+      <table id="table" style="display:none;">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Message</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
 </div>
 
 <script>
-// ⭐ IMMEDIATE AUTH CHECK - Runs before anything else
-(function() {
-  console.log("Checking auth...");
-  
+// Immediate auth check
+(function checkAuth() {
   const token = localStorage.getItem("adminToken");
-  console.log("Token:", token ? "Found" : "Not found");
   
-  // Check if token exists and is valid
   if (!token || token === "null" || token === "undefined" || token === "") {
-    console.log("No valid token - redirecting to login");
-    window.location.replace("admin-login.html");
-    return; // Stop execution
+    console.log("NO TOKEN - REDIRECTING");
+    window.location.href = "admin-login.html";
+    return;
   }
   
-  console.log("Token valid - showing dashboard");
+  console.log("TOKEN FOUND - SHOWING DASHBOARD");
   document.body.classList.add("authenticated");
-  document.getElementById("auth-check").style.display = "none";
 })();
 
-// Only define these if we have a token (we're still on page)
 const token = localStorage.getItem("adminToken");
+if (!token) {
+  window.location.href = "admin-login.html";
+  throw new Error("No token");
+}
+
 const API_BASE = window.location.hostname === "localhost"
   ? "http://localhost:5000"
   : "https://gio26.onrender.com";
@@ -152,7 +315,7 @@ async function loadSubmissions() {
     
     if (res.status === 401) {
       localStorage.removeItem("adminToken");
-      window.location.replace("admin-login.html");
+      window.location.href = "admin-login.html";
       return;
     }
     
@@ -160,12 +323,19 @@ async function loadSubmissions() {
     
     const data = await res.json();
     document.getElementById("loading").style.display = "none";
-    document.getElementById("table").style.display = "table";
-    renderTable(data.submissions || []);
+    
+    const submissions = data.submissions || [];
+    
+    if (submissions.length === 0) {
+      document.getElementById("empty-state").style.display = "block";
+    } else {
+      document.getElementById("table").style.display = "table";
+      renderTable(submissions);
+    }
 
   } catch (err) {
     console.error("Error:", err);
-    document.getElementById("loading").innerText = "Failed to load messages";
+    document.getElementById("loading").innerHTML = "❌ Failed to load messages. <button onclick='loadSubmissions()' style='margin-left:10px;padding:5px 10px;'>Retry</button>";
   }
 }
 
@@ -173,28 +343,31 @@ function renderTable(submissions) {
   const tbody = document.querySelector("#table tbody");
   tbody.innerHTML = "";
 
-  if (submissions.length === 0) {
-    tbody.innerHTML = "<tr><td colspan='7'>No messages found</td></tr>";
-    return;
-  }
-
   submissions.forEach(sub => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td>${sub.name || "N/A"}</td>
-      <td>${sub.email || "N/A"}</td>
-      <td>${sub.phone || "N/A"}</td>
-      <td>${sub.message || "No message"}</td>
-      <td class="status-new">${sub.status || "new"}</td>
+      <td><strong>${escapeHtml(sub.name) || "N/A"}</strong></td>
+      <td><a href="mailto:${escapeHtml(sub.email)}" style="color:#667eea;text-decoration:none;">${escapeHtml(sub.email) || "N/A"}</a></td>
+      <td>${escapeHtml(sub.phone) || "—"}</td>
+      <td class="message-preview" title="${escapeHtml(sub.message)}">${escapeHtml(sub.message) || "No message"}</td>
+      <td><span class="status-new">${escapeHtml(sub.status) || "new"}</span></td>
       <td>${new Date(sub.createdAt).toLocaleString()}</td>
-      <td><button class="delete-btn" onclick="deleteMessage('${sub._id}')">Delete</button></td>
+      <td><button class="delete-btn" onclick="deleteMessage('${sub._id}')">🗑️ Delete</button></td>
     `;
     tbody.appendChild(tr);
   });
 }
 
+// Prevent XSS
+function escapeHtml(text) {
+  if (!text) return "";
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
 async function deleteMessage(id) {
-  if (!confirm("Delete this message permanently?")) return;
+  if (!confirm("🗑️ Delete this message permanently?")) return;
 
   try {
     const res = await fetch(`${API_BASE}/api/admin/submissions/${id}`, {
@@ -204,7 +377,7 @@ async function deleteMessage(id) {
     
     if (res.status === 401) {
       localStorage.removeItem("adminToken");
-      window.location.replace("admin-login.html");
+      window.location.href = "admin-login.html";
       return;
     }
     
@@ -212,16 +385,18 @@ async function deleteMessage(id) {
     loadSubmissions();
   } catch (err) {
     console.error("Delete error:", err);
-    alert("Failed to delete message");
+    alert("❌ Failed to delete message");
   }
 }
 
 function logout() {
-  localStorage.removeItem("adminToken");
-  window.location.replace("admin-login.html");
+  if (confirm("Are you sure you want to logout?")) {
+    localStorage.removeItem("adminToken");
+    window.location.href = "admin-login.html";
+  }
 }
 
-// Start loading
+// Load data
 loadSubmissions();
 </script>
 
