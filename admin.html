@@ -6,10 +6,26 @@
 <title>Admin Dashboard — Messages</title>
 
 <style>
-body {
+/* Hide content by default until auth check passes */
+body { visibility: hidden; }
+
+body.authenticated { 
+  visibility: visible; 
   font-family: Arial, sans-serif;
   background: #f4f6f9;
   margin: 0;
+}
+
+/* Redirect message */
+#auth-check {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: #f4f6f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  z-index: 9999;
 }
 
 header {
@@ -30,9 +46,7 @@ header {
   box-shadow: 0 5px 20px rgba(0,0,0,0.08);
 }
 
-h2 {
-  margin-top: 0;
-}
+h2 { margin-top: 0; }
 
 table {
   width: 100%;
@@ -47,18 +61,9 @@ th, td {
   font-size: 14px;
 }
 
-th {
-  background: #f1f3f5;
-}
-
-tr:hover {
-  background: #fafafa;
-}
-
-.status-new {
-  color: #e67e22;
-  font-weight: bold;
-}
+th { background: #f1f3f5; }
+tr:hover { background: #fafafa; }
+.status-new { color: #e67e22; font-weight: bold; }
 
 button {
   padding: 6px 12px;
@@ -72,9 +77,7 @@ button {
   color: white;
 }
 
-.delete-btn:hover {
-  background: #c0392b;
-}
+.delete-btn:hover { background: #c0392b; }
 
 .loading {
   text-align: center;
@@ -86,13 +89,16 @@ button {
 
 <body>
 
+<!-- Auth check message -->
+<div id="auth-check">Checking authentication...</div>
+
 <header>
   📬 Sponsors Contact Messages Dashboard
 </header>
 
 <div class="container">
-<h2>All Submissions</h2>
-<button onclick="logout()" style="float:right; background:#e74c3c; color:white; padding:8px 16px; border:none; border-radius:4px; cursor:pointer;">Logout</button>
+  <h2>All Submissions</h2>
+  <button onclick="logout()" style="float:right; background:#e74c3c; color:white; padding:8px 16px; border:none; border-radius:4px; cursor:pointer;">Logout</button>
 
   <div id="loading" class="loading">Loading messages...</div>
 
@@ -110,54 +116,55 @@ button {
     </thead>
     <tbody></tbody>
   </table>
-
 </div>
 
 <script>
-// ⭐ PROTECTION: Check token IMMEDIATELY before anything else
+// ⭐ IMMEDIATE AUTH CHECK - Runs before anything else
+(function() {
+  console.log("Checking auth...");
+  
+  const token = localStorage.getItem("adminToken");
+  console.log("Token:", token ? "Found" : "Not found");
+  
+  // Check if token exists and is valid
+  if (!token || token === "null" || token === "undefined" || token === "") {
+    console.log("No valid token - redirecting to login");
+    window.location.replace("admin-login.html");
+    return; // Stop execution
+  }
+  
+  console.log("Token valid - showing dashboard");
+  document.body.classList.add("authenticated");
+  document.getElementById("auth-check").style.display = "none";
+})();
+
+// Only define these if we have a token (we're still on page)
 const token = localStorage.getItem("adminToken");
-
-if (!token || token === "null" || token === "undefined") {
-  // No token found, redirect to login immediately
-  window.location.replace("admin-login.html");
-  throw new Error("No token - redirecting to login"); // Stop script execution
-}
-
-// Token exists, proceed with loading
-console.log("Token found, loading admin panel...");
-
-const API_BASE =
-  window.location.hostname === "localhost"
-    ? "http://localhost:5000"
-    : "https://gio26.onrender.com";
+const API_BASE = window.location.hostname === "localhost"
+  ? "http://localhost:5000"
+  : "https://gio26.onrender.com";
 
 async function loadSubmissions() {
   try {
     const res = await fetch(`${API_BASE}/api/admin/submissions`, {
-      headers: {
-        Authorization: token
-      }
+      headers: { Authorization: token }
     });
     
-    // ⭐ Handle 401 (unauthorized) - token expired or invalid
     if (res.status === 401) {
-      localStorage.removeItem("adminToken"); // Clear bad token
+      localStorage.removeItem("adminToken");
       window.location.replace("admin-login.html");
       return;
     }
     
-    if (!res.ok) {
-      throw new Error(`HTTP error! status: ${res.status}`);
-    }
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     
     const data = await res.json();
-
     document.getElementById("loading").style.display = "none";
     document.getElementById("table").style.display = "table";
     renderTable(data.submissions || []);
 
   } catch (err) {
-    console.error("Error loading submissions:", err);
+    console.error("Error:", err);
     document.getElementById("loading").innerText = "Failed to load messages";
   }
 }
@@ -180,9 +187,7 @@ function renderTable(submissions) {
       <td>${sub.message || "No message"}</td>
       <td class="status-new">${sub.status || "new"}</td>
       <td>${new Date(sub.createdAt).toLocaleString()}</td>
-      <td>
-        <button class="delete-btn" onclick="deleteMessage('${sub._id}')">Delete</button>
-      </td>
+      <td><button class="delete-btn" onclick="deleteMessage('${sub._id}')">Delete</button></td>
     `;
     tbody.appendChild(tr);
   });
@@ -194,9 +199,7 @@ async function deleteMessage(id) {
   try {
     const res = await fetch(`${API_BASE}/api/admin/submissions/${id}`, {
       method: "DELETE",
-      headers: {
-        Authorization: token
-      }
+      headers: { Authorization: token }
     });
     
     if (res.status === 401) {
@@ -205,10 +208,7 @@ async function deleteMessage(id) {
       return;
     }
     
-    if (!res.ok) {
-      throw new Error(`Delete failed: ${res.status}`);
-    }
-    
+    if (!res.ok) throw new Error(`Delete failed: ${res.status}`);
     loadSubmissions();
   } catch (err) {
     console.error("Delete error:", err);
@@ -216,13 +216,12 @@ async function deleteMessage(id) {
   }
 }
 
-// ⭐ ADD LOGOUT FUNCTION
 function logout() {
   localStorage.removeItem("adminToken");
   window.location.replace("admin-login.html");
 }
 
-// Load data
+// Start loading
 loadSubmissions();
 </script>
 
