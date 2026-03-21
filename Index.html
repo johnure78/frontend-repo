@@ -298,10 +298,11 @@ to those in urgent needs.
   </footer>
   <!-- FORM FOCUS OVERLAY -->
 <div id="formFocusOverlay" class="form-overlay">
-
   <div class="form-modal">
-
-    <span class="close-focus" onclick="closeFormFocus()">❌</span>
+    <button class="close-focus" onclick="closeFormFocus()" aria-label="Close form">×</button>
+    <!-- Form will be moved here automatically -->
+  </div>
+</div>
 
     <!-- Form will be moved here automatically -->
 
@@ -313,48 +314,76 @@ to those in urgent needs.
   <script src="js/main.js"></script>
   <script src="js/program.js"></script>
   <script src="js/form.js"></script>
-  <script>
+  <<script>
 const sponsorCard = document.querySelector(".form-card");
 const overlay = document.getElementById("formFocusOverlay");
 const modal = overlay.querySelector(".form-modal");
 
-let originalParent = sponsorCard.parentElement;
-let originalNext = sponsorCard.nextSibling;
+let originalParent = null;
+let originalNext = null;
+let isInModal = false;
 
-// 🔥 Trigger when ANY input or textarea is focused
+function captureOriginalPosition() {
+  if (!originalParent) {
+    originalParent = sponsorCard.parentElement;
+    originalNext = sponsorCard.nextSibling;
+  }
+}
+
+function openFormFocus() {
+  if (isInModal) return;
+  
+  captureOriginalPosition();
+  
+  overlay.classList.add('active');
+  document.body.classList.add("modal-open");
+  
+  setTimeout(() => {
+    modal.appendChild(sponsorCard);
+    isInModal = true;
+    
+    const firstInput = sponsorCard.querySelector('input');
+    if (firstInput) firstInput.focus();
+  }, 10);
+}
+
+function closeFormFocus() {
+  if (!isInModal) return;
+  
+  overlay.classList.remove('active');
+  document.body.classList.remove("modal-open");
+  
+  setTimeout(() => {
+    if (originalNext && originalNext.parentElement === originalParent) {
+      originalParent.insertBefore(sponsorCard, originalNext);
+    } else {
+      originalParent.appendChild(sponsorCard);
+    }
+    isInModal = false;
+  }, 300);
+}
+
+// Trigger on input focus
 sponsorCard.addEventListener("focusin", (e) => {
-  if (e.target.matches("input, textarea")) {
+  if (e.target.matches("input, textarea") && !isInModal) {
     openFormFocus();
   }
 });
 
-function openFormFocus() {
-
-  overlay.style.display = "flex";
-  document.body.classList.add("modal-open");
-
-  // Move form card into modal
-  modal.appendChild(sponsorCard);
-}
-
-function closeFormFocus() {
-
-  overlay.style.display = "none";
-  document.body.classList.remove("modal-open");
-
-  // Move form back to original place
-  if (originalNext) {
-    originalParent.insertBefore(sponsorCard, originalNext);
-  } else {
-    originalParent.appendChild(sponsorCard);
-  }
-}
-
-// OPTIONAL: click outside to close
+// Close on backdrop click
 overlay.addEventListener("click", (e) => {
-  if (e.target === overlay) closeFormFocus();
+  if (e.target === overlay) {
+    closeFormFocus();
+  }
+});
+
+// Close on Escape key
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && isInModal) {
+    closeFormFocus();
+  }
 });
 </script>
-  
+
 </body>
 </html>
