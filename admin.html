@@ -304,31 +304,53 @@ loadSubmissions();
 
 <script>
 async function loadSubscribers() {
+  const tableBody = document.querySelector("#newsletterTable tbody");
+  
+  // Show loading state
+  tableBody.innerHTML = "<tr><td colspan='2'>Loading subscribers...</td></tr>";
+  
   try {
-    const response = await fetch(
-      "https://gio26.onrender.com/api/newsletter/subscribers"
-    );
-
+    const response = await fetch(`${API_BASE}/api/newsletter/subscribers`, {
+      headers: {
+        Authorization: token  // ⭐ Add the auth token!
+      }
+    });
+    
+    // ⭐ Check for auth errors
+    if (response.status === 401) {
+      localStorage.removeItem("adminToken");
+      window.location.replace("admin-login.html");
+      return;
+    }
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
     const data = await response.json();
-
-    const tableBody = document.querySelector("#newsletterTable tbody");
     tableBody.innerHTML = "";
 
+    if (!data || data.length === 0) {
+      tableBody.innerHTML = "<tr><td colspan='2'>No subscribers yet</td></tr>";
+      return;
+    }
+
     data.forEach(sub => {
-      const row = `
-        <tr>
-          <td>${sub.email}</td>
-          <td>${new Date(sub.subscribedAt).toLocaleString()}</td>
-        </tr>
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${sub.email}</td>
+        <td>${new Date(sub.subscribedAt).toLocaleString()}</td>
       `;
-      tableBody.innerHTML += row;
+      tableBody.appendChild(row);
     });
 
   } catch (error) {
-    console.error("Failed to load subscribers");
+    console.error("Failed to load subscribers:", error);
+    tableBody.innerHTML = `<tr><td colspan='2' style="color:red;">Error: ${error.message}</td></tr>`;
   }
 }
 
+// Call it
 loadSubscribers();
 </script>
 </body>
