@@ -303,55 +303,66 @@ loadSubmissions();
 </script>
 
 <script>
+  
 async function loadSubscribers() {
   const tableBody = document.querySelector("#newsletterTable tbody");
   
-  // Show loading state
+  // Show loading
   tableBody.innerHTML = "<tr><td colspan='2'>Loading subscribers...</td></tr>";
   
   try {
     const response = await fetch(`${API_BASE}/api/newsletter/subscribers`, {
-      headers: {
-        Authorization: token  // ⭐ Add the auth token!
-      }
+      headers: { Authorization: token }
     });
     
-    // ⭐ Check for auth errors
     if (response.status === 401) {
       localStorage.removeItem("adminToken");
       window.location.replace("admin-login.html");
       return;
     }
     
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
     
     const data = await response.json();
+    
+    // Clear loading message
     tableBody.innerHTML = "";
-
-    if (!data || data.length === 0) {
+    
+    // Handle empty
+    if (!Array.isArray(data) || data.length === 0) {
       tableBody.innerHTML = "<tr><td colspan='2'>No subscribers yet</td></tr>";
       return;
     }
-
+    
+    // ⭐ FIXED: Use createElement instead of string concatenation
     data.forEach(sub => {
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>${sub.email}</td>
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${escapeHtml(sub.email)}</td>
         <td>${new Date(sub.subscribedAt).toLocaleString()}</td>
       `;
-      tableBody.appendChild(row);
+      tableBody.appendChild(tr);  // ✅ Proper DOM append
     });
 
   } catch (error) {
     console.error("Failed to load subscribers:", error);
-    tableBody.innerHTML = `<tr><td colspan='2' style="color:red;">Error: ${error.message}</td></tr>`;
+    tableBody.innerHTML = `<tr><td colspan='2' style="color:#e74c3c;">Error loading subscribers</td></tr>`;
   }
+}
+
+// ⭐ Add this helper to prevent XSS if emails have < or > characters
+function escapeHtml(text) {
+  if (!text) return "";
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 }
 
 // Call it
 loadSubscribers();
 </script>
+
 </body>
 </html>
