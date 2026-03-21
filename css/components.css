@@ -610,6 +610,21 @@ body.modal-open {
     font-size: 20px;
   }
 }
+
+
+.newsletter-message {
+  margin-top: 10px;
+  font-weight: 500;
+}
+
+.newsletter-message.success {
+  color: #4CAF50;
+}
+
+.newsletter-message.error {
+  color: #ff4d4d;
+}
+
 /* ============================================
    SOCIAL ICONS
    ============================================ */
