@@ -296,10 +296,65 @@ to those in urgent needs.
       </div>
     </div>
   </footer>
+  <!-- FORM FOCUS OVERLAY -->
+<div id="formFocusOverlay" class="form-overlay">
+
+  <div class="form-modal">
+
+    <span class="close-focus" onclick="closeFormFocus()">❌</span>
+
+    <!-- Form will be moved here automatically -->
+
+  </div>
+
+</div>
 
   <!-- Scripts -->
   <script src="js/main.js"></script>
   <script src="js/program.js"></script>
   <script src="js/form.js"></script>
+  <script>
+const sponsorCard = document.querySelector(".form-card");
+const overlay = document.getElementById("formFocusOverlay");
+const modal = overlay.querySelector(".form-modal");
+
+let originalParent = sponsorCard.parentElement;
+let originalNext = sponsorCard.nextSibling;
+
+// 🔥 Trigger when ANY input or textarea is focused
+sponsorCard.addEventListener("focusin", (e) => {
+  if (e.target.matches("input, textarea")) {
+    openFormFocus();
+  }
+});
+
+function openFormFocus() {
+
+  overlay.style.display = "flex";
+  document.body.classList.add("modal-open");
+
+  // Move form card into modal
+  modal.appendChild(sponsorCard);
+}
+
+function closeFormFocus() {
+
+  overlay.style.display = "none";
+  document.body.classList.remove("modal-open");
+
+  // Move form back to original place
+  if (originalNext) {
+    originalParent.insertBefore(sponsorCard, originalNext);
+  } else {
+    originalParent.appendChild(sponsorCard);
+  }
+}
+
+// OPTIONAL: click outside to close
+overlay.addEventListener("click", (e) => {
+  if (e.target === overlay) closeFormFocus();
+});
+</script>
+  
 </body>
 </html>
