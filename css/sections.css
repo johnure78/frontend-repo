@@ -229,6 +229,10 @@ gap:30px;
   margin-bottom: var(--space-1);
   font-family: var(--font-accent);
 }
+.section-heade p {
+  font-size: var(--font-size-md);
+  color: var(--text-secondary);
+}
 
 /* ============================================
    IMPACT SECTION
