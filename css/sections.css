@@ -176,8 +176,8 @@ gap:30px;
 .banner-slide {
   position: absolute;
   inset: 0;
-  max-width: 80%;
-  margin-left: 10%;
+  max-width: 85%;
+  margin-left: 7.5%;
   background-size: cover;
   background-position: center;
   opacity: 1;
