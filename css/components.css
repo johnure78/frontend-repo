@@ -278,7 +278,7 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #1E3A8A, #3B82F6);
+  background: linear-gradient(135deg, #3B82F6, #9fb5d5);
   color: whitesmoke;
   box-shadow: 0 0px 10px rgba(255, 215, 100, 0.5);
   color: var(--color-white);
