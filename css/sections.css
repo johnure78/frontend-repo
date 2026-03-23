@@ -1122,28 +1122,85 @@ gap:30px;
 }
 
 @media (max-width: 768px) {
+
+  /* SECTION SPACING */
   .contact-section {
-    padding: 3rem 0;
+    padding: 2.5rem 0;
   }
-  
+
+  /* GRID → SINGLE COLUMN */
   .contact-wrapper {
+    display: grid;
     grid-template-columns: 1fr;
-    gap: 2rem;
-    padding: 0 1.5rem;
+    gap: 1.75rem;
+    padding: 0 1rem;
+    width: 100%;
+    max-width: 100%;
   }
-  
-  .newsletter-card {
-    padding: 1.5rem;
+
+  /* ENSURE ALL COLUMNS DON'T OVERFLOW */
+  .contact-brand,
+  .contact-newsletter,
+  .contact-info-col {
+    width: 100%;
+    max-width: 100%;
   }
-  
+
+  /* BRAND TEXT */
   .contact-brand {
     text-align: left;
     align-items: flex-start;
   }
-  
+
   .impact-mini {
     justify-content: flex-start;
+    flex-wrap: wrap;
   }
+
+  /* NEWSLETTER CARD */
+  .newsletter-card {
+    padding: 1.25rem;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* INPUT + BUTTON STACK */
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    background: transparent;
+    border: none;
+  }
+
+  .newsletter-form input {
+    width: 100%;
+    max-width: 100%;
+    border-radius: 12px;
+    padding: 1rem;
+    box-sizing: border-box;
+  }
+
+  .subscribe-btn {
+    width: 100%;
+    border-radius: 12px;
+    justify-content: center;
+    padding: 0.9rem 1rem;
+  }
+
+  /* SOCIAL ICONS WRAP */
+  .social-icons {
+    flex-wrap: wrap;
+  }
+
+  /* CONTACT ITEMS */
+  .contact-item {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
 }
 
 /* ============================================
