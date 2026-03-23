@@ -93,7 +93,7 @@
 @media (max-width: 768px) {
   .hero-section {
     padding-top: calc(var(--navbar-height) + var(--space-8));
-    min-height: 140svh;
+    min-height: 200svh;
   }
   
   .hero-content h1 {
